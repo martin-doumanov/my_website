@@ -6,11 +6,9 @@ googleAnalytics: ''
 disqusShortname: ''
 params:
   banner:
-    buttonText: Get Started
-    subtitle: Welcome to my Portfolio Website for Data Analytics in Finance|-
-      A RESPONSIVE SITE TEMPLATE DESIGNED BY HTML5 UP
-      AND RELEASED UNDER THE CREATIVE COMMONS.
-    title: Hi, my name is Martin Doumanov
+    buttonText: Explore
+    subtitle: Welcome to my Portfolio Website for Data Analytics in Finance
+    title: Welcome to Martin's Protfolio
   blog: {}
   contact:
     address:
@@ -23,7 +21,7 @@ params:
     email:
       - email: mdoumanov.mfa2022@london.edu
         title: Email
-    enable: yes
+   # enable: yes
     #phone:
      # - phone: (000) 000-0000 x1234
       #  title: Phone
@@ -35,7 +33,7 @@ params:
     text: Please visit [this page](/)
   favicon: favicon.ico
   footer:
-    copyright: Company Name
+    copyright: Martin Doumanov
     enable: yes
     quicklinks:
       - alt: HTML5 UP
@@ -61,20 +59,20 @@ params:
   name: Martin Doumanov
   navigation:
     button1:
-      - name: Get Started
+      - name: Explore
         url: blogs
-    button2:
-      - name: Log In
-        url: '#'
+    #button2:
+     # - name: Log In
+      #  url: '#'
     links:
       - name: Home
         url: '#'
+      - name: About Me
+        url: blogs/about_me
       - name: Blogs
         url: blogs
-      - name: Generic Blog
-        url: blogs/ipsum
-      - name: Elements
-        url: elements.html
+      #- name: Elements
+        #url: elements.html
     menu: Menu
     subtitle: By HTML5 Up
     title: Forty
@@ -84,11 +82,11 @@ params:
       - image: lbs.jpg
         subtitle: MFA '22 | NYUAD '21 | ACS '17
         title: About Me
-        url: blogs/aliquam
-      - image: spices.jpg
-        subtitle: Feugiat Amet Tempus
-        title: Risk Return of Dow Jones Stocks
-        url: blogs/risk_return
+        url: blogs/about_me
+      - image: louvre.jpg
+        subtitle: A young professional with experiences in IB, VC, and Consulting
+        title: Resume
+        url: blogs/resume
       - image: pic03.jpg
         subtitle: Lorem Etiam Nullam
         title: Magna
@@ -106,13 +104,9 @@ params:
         title: Etiam
         url: blogs/ipsum
   two:
-    buttonText: Get Started
+    buttonText: Go back?
     enable: yes
-    subtitle: "Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero.
-      \r\n    Mauris aliquet magna magna sed nunc rhoncus pharetra. \r\n    Pellentesque
-      condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia
-      pellentesque lorem ipsum dolor. \r\n    Nullam et orci eu lorem consequat tincidunt.
-      Vivamus et sagittis libero.\r\n    Mauris aliquet magna magna sed nunc rhoncus
-      amet pharetra et feugiat tempus."
-    title: Massa libero
+    subtitle: "You have just visited my final project for Data Analytics for Finance. 
+    \r\n I hope you have learned more about me and you foud something that peeked your interest. Come again!"
+    title: Thank you for coming!
     url: blogs
