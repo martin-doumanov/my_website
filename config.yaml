@@ -1,16 +1,16 @@
-baseURL: https://mvd-portfolio.netlify.app/
+baseURL: https://martin-doumanov-portfolio.netlify.app/
 languageCode: en-us
-title: Portfolio website for MD
+title: Portfolio website for Martin Doumanov
 theme: forty
 googleAnalytics: ''
 disqusShortname: ''
 params:
   banner:
     buttonText: Get Started
-    subtitle: |-
+    subtitle: Welcome to my Portfolio Website for Data Analytics in Finance|-
       A RESPONSIVE SITE TEMPLATE DESIGNED BY HTML5 UP
       AND RELEASED UNDER THE CREATIVE COMMONS.
-    title: Hi, my name is MD
+    title: Hi, my name is Martin Doumanov
   blog: {}
   contact:
     address:
@@ -21,12 +21,12 @@ params:
     buttonClear: Clear
     buttonSend: Send message
     email:
-      - email: example@domain.com
+      - email: mdoumanov.mfa2022@london.edu
         title: Email
     enable: yes
-    phone:
-      - phone: (000) 000-0000 x1234
-        title: Phone
+    #phone:
+     # - phone: (000) 000-0000 x1234
+      #  title: Phone
   custom_css: []
   custom_js: []
   description: Your description
@@ -42,23 +42,23 @@ params:
         text: 'Design: '
         url: https://www.html5up.net
     social:
-      - icon: fa-twitter
-        label: Twitter
-        url: https://www.twitter.com
+     # - icon: fa-twitter
+      #  label: Twitter
+      #  url: https://www.twitter.com
       - icon: fa-facebook
         label: Facebook
-        url: https://www.facebook.com
-      - icon: fa-instagram
-        label: Instagram
-        url: https://www.instagram.com
+        url: https://www.facebook.com/mdoumanov/
+    #  - icon: fa-instagram
+     #   label: Instagram
+      #  url: https://www.instagram.com
       - icon: fa-github
         label: GitHub
-        url: https://www.github.com
+        url: https://github.com/martin-doumanov
       - icon: fa-linkedin
         label: LinkedIn
-        url: https://www.linkedin.com
+        url: https://www.linkedin.com/in/mdoumanov/
   image: ''
-  name: Your name
+  name: Martin Doumanov
   navigation:
     button1:
       - name: Get Started
@@ -82,10 +82,10 @@ params:
     enable: yes
     showcase:
       - image: lbs.jpg
-        subtitle: MFA2022, NYUAD '17
+        subtitle: MFA '22 | NYUAD '21 | ACS '17
         title: About Me
         url: blogs/aliquam
-      - image: pic02.jpg
+      - image: spices.jpg
         subtitle: Feugiat Amet Tempus
         title: Risk Return of Dow Jones Stocks
         url: blogs/risk_return
