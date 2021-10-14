@@ -5,7 +5,7 @@ categories:
 date: "2021-10-13"
 description: About Me # the title that will show up once someone gets to this page
 draft: false
-image: lbs.jpeg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+image: martin.jpeg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
 
 keywords: ""
 slug: about_me # slug is the shorthand URL address... no spaces plz
@@ -20,9 +20,13 @@ library(here)
 library(janitor)
 ```
 
-# A short history of Martin
+# A short history of Martin   
 
-Hi, my name is Martin. I was b    orn in Sofia, Bulgaria on January 31, 1999. I grew up in a loving family and often spent my summers with my grandma and cousins. I attended a private high school called *the American College of Sofia*. Ever since I was a kid, I always loved cars. I raced go-karts at the local track in my city and even competed in some amateur leagues. When I turned 14, I started racing in the National Bulgarian Karting Championship and even won a race. Unfortunately, as I grew older, it got more and more expensive and I had to quit, but my love for cars, motorsport, and F1 remains.
+```{r, echo=FALSE}
+knitr::include_graphics("/img/martin.JPG",error =FALSE)     
+```
+
+Hi, my name is Martin. I was born in Sofia, Bulgaria on January 31, 1999. I grew up in a loving family and often spent my summers with my grandma and cousins. I attended a private high school called *the American College of Sofia*. Ever since I was a kid, I always loved cars. I raced go-karts at the local track in my city and even competed in some amateur leagues. When I turned 14, I started racing in the National Bulgarian Karting Championship and even won a race. Unfortunately, as I grew older, it got more and more expensive and I had to quit, but my love for cars, motorsport, and F1 remains.
 
 ***
 
