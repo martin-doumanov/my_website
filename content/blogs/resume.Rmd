@@ -20,7 +20,7 @@ library(here)
 library(janitor)
 ```
    
-```{r}
-knitr::include_graphics("/img/resume.jpg", error = FALSE, serve_site())       
+```{r, echo=FALSE}
+knitr::include_graphics("/img/resume.jpg",error =FALSE)     
 ```
 
