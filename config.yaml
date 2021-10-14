@@ -87,10 +87,10 @@ params:
         subtitle: A young professional with experiences in IB, VC, and Consulting
         title: Resume
         url: blogs/resume
-      - image: pic03.jpg
-        subtitle: Lorem Etiam Nullam
-        title: Magna
-        url: blogs/magna
+      - image: sky.jpg
+        subtitle: Some of my favorite work
+        title: Photography
+        url: blogs/photography
       - image: pic04.jpg
         subtitle: Nisl Sed Aliquam
         title: Ipsum

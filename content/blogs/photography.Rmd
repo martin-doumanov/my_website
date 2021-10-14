@@ -1,0 +1,69 @@
+---
+categories:  
+- ""    #the front matter should be like the one found in, e.g., blog2.md. It cannot be like the normal Rmd we used
+- ""
+date: "2021-10-13"
+description: Photography Portfolio # the title that will show up once someone gets to this page
+draft: false
+image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+
+keywords: ""
+slug: photography # slug is the shorthand URL address... no spaces plz
+title: Photography Portfolio
+---
+  
+  
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+library(gapminder)  
+library(here)
+library(janitor)
+```
+   
+```{r, echo=FALSE}
+knitr::include_graphics("/img/stand.jpg",error =FALSE)     
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/girl.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/forest.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/train.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/alone.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/cali.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/sun.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/sri.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/friend.jpg",error =FALSE)     
+```
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("/img/hair.jpg",error =FALSE)     
+```
