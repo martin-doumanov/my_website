@@ -5,7 +5,7 @@ categories:
 date: "2021-10-13"
 description: Resume # the title that will show up once someone gets to this page
 draft: false
-image: louvre.jpeg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+image: resume.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
 
 keywords: ""
 slug: resume # slug is the shorthand URL address... no spaces plz
@@ -19,9 +19,8 @@ library(gapminder)
 library(here)
 library(janitor)
 ```
-
-```{r, out.width="100%", echo=FALSE}
-knitr::include_graphics("C:/Users/mdoum/Documents/LBS/Data Bootcamp/my_website/static/img/blogs/resume.jpg", auto_pdf = TRUE)
-
+   
+```{r}
+knitr::include_graphics("/img/resume.jpg", error = FALSE, serve_site())       
 ```
 
