@@ -91,10 +91,10 @@ params:
         subtitle: Some of my favorite work
         title: Photography
         url: blogs/photography
-      - image: pic04.jpg
-        subtitle: Nisl Sed Aliquam
-        title: Ipsum
-        url: blogs/ipsum
+      - image: work.jpg
+        subtitle: A collection of my best visualisations
+        title: Visualisations
+        url: blogs/visuals
       - image: pic05.jpg
         subtitle: Ipsum Dolor Sit Amet
         title: Consequat
@@ -107,6 +107,6 @@ params:
     buttonText: Go back?
     enable: yes
     subtitle: "You have just visited my final project for Data Analytics for Finance. 
-    \r\n I hope you have learned more about me and you foud something that peeked your interest. Come again!"
+    \r\n I hope you have learned more about me and you found something that peeked your interest. Come again!"
     title: Thank you for coming!
     url: blogs

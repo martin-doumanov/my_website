@@ -1,0 +1,435 @@
+---
+categories:  
+- ""    #the front matter should be like the one found in, e.g., blog2.md. It cannot be like the normal Rmd we used
+- ""
+date: "2021-10-13"
+description: Best Visualisations from Data Analytics # the title that will show up once someone gets to this page
+draft: false
+image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+
+keywords: ""
+slug: visuals # slug is the shorthand URL address... no spaces plz
+title: My best visualisations from Data Analytics
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<div id="homework-1-challenge-2-opinion-polls-for-the-2021-german-elections" class="section level2">
+<h2>Homework 1, Challenge 2: Opinion polls for the 2021 German elections</h2>
+<p>In this exercise, we were tasked with replicating a graph from the Guardian, which depicted the results of election polls prior to the 2021 German parliamentary election. The Guardian newspaper had an <a href="https://www.theguardian.com/world/2021/aug/20/german-election-poll-tracker-who-will-be-the-next-chancellor">election poll tracker for the upcoming German election</a>.The list of the opinion polls since Jan 2021 could be found at <a href="https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election">Wikipedia</a></p>
+<p>First, we used the following code to scrape the Wikipedia page and import the table in a dataframe.</p>
+<pre class="r"><code>url &lt;- &quot;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&quot;
+
+# get tables that exist on Wikipedia page 
+tables &lt;- url %&gt;% 
+  read_html() %&gt;% 
+  html_nodes(css=&quot;table&quot;)
+
+
+# parse HTML tables into a dataframe called polls 
+# Use purr::map() to create a list of all tables in URL
+polls &lt;- map(tables, . %&gt;% 
+             html_table(fill=TRUE)%&gt;% 
+             janitor::clean_names())
+
+
+# list of opinion polls
+german_election_polls &lt;- polls[[1]] %&gt;% # the first table on the page contains the list of all opinions polls
+  slice(2:(n()-1)) %&gt;%  # drop the first row, as it contains again the variable names and last row that contains 2017 results
+  mutate(
+         # polls are shown to run from-to, e.g. 9-13 Aug 2021. We keep the last date, 13 Aug here, as the poll date
+         # and we extract it by picking the last 11 characters from that field
+         end_date = str_sub(fieldwork_date, -11),
+         
+         # end_date is still a string, so we convert it into a date object using lubridate::dmy()
+         end_date = dmy(end_date),
+         
+         # we also get the month and week number from the date, if we want to do analysis by month- week, etc.
+         month = month(end_date),
+         week = isoweek(end_date)
+         )</code></pre>
+<p>After downloading the data and formating it, I recreated the graph using the following code:</p>
+<pre class="r"><code># First, I use the following code to calculate the average result of the polls for each party by grouping the polls by their end date. The reason I do this is because there are many polls per day in some cases and I would like to crate a 14-day moving average in the following step
+
+german_election_polls_means &lt;- german_election_polls %&gt;% 
+  group_by (end_date) %&gt;% 
+  summarise(mean_union = mean(union, na.rm = TRUE), 
+            mean_spd = mean(spd, na.rm = TRUE), 
+            mean_afd = mean(af_d, na.rm = TRUE),
+            mean_fdp = mean(fdp, na.rm = TRUE),
+            mean_linke = mean(linke, na.rm = TRUE),
+            mean_grune = mean(grune, na.rm = TRUE)
+      )
+
+
+# Next I: 
+#     plot the data for all parties on the same graph using geom_point and name the graph &quot;plot&quot;
+#     define the x-axis as the end date of the survey
+#     assign each party a color and make the points see through
+#     use rollmean to calculate rolling 14 day average to show the trend per party
+
+plot &lt;- ggplot(german_election_polls, 
+               aes(x = end_date)) + 
+  geom_point(aes(y = union), 
+             color = &quot;#000000&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_union, 
+                             14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#000000&quot;) +
+
+  geom_point(aes(y = spd), 
+             color = &quot;#FF0000&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_spd, 14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#FF0000&quot;) +
+
+  geom_point(aes(y = af_d), 
+             color = &quot;#0080FF&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_afd, 14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#0080FF&quot;) +
+
+  geom_point(aes(y = fdp), 
+             color = &quot;#FFFF00&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_fdp, 14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#FFFF00&quot;) +
+
+  geom_point(aes(y = linke), 
+             color = &quot;#A23FAE&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_linke, 14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#A23FAE&quot;) +
+
+  
+  geom_point(aes(y = grune), 
+             color = &quot;#006633&quot;, 
+             alpha = 0.3) +
+  
+  geom_line(data = german_election_polls_means, 
+            aes(y = rollmean(mean_grune, 14, na.pad = TRUE)), 
+            size = 1, 
+            color = &quot;#006633&quot;)
+
+
+# Finally, I use the following chunk of code to format the graph to match the one from the Guardian
+
+  plot + scale_y_continuous(&quot;&quot;, 
+                            expand = c(0,5), 
+                            breaks = seq(0, 45, by = 10),
+                            minor_breaks = seq(0, 50, by = 5),
+                            labels = label_number(suffix = &quot;%&quot;) ) +
+          scale_x_date(&quot;&quot;, 
+                       expand = c(0,20), 
+                       date_breaks = &quot;2 month&quot;, 
+                       date_minor_breaks = &quot;1 month&quot;, 
+                       date_labels = &quot;%b %Y&quot;) + 
+          coord_fixed(4) +
+          labs(
+                  title = &quot;German Election Polling Timeseries&quot;,
+                  caption = &quot;Data from: &#39;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&#39;&quot;
+      
+              )</code></pre>
+<pre><code>## Warning: Removed 13 row(s) containing missing values (geom_path).
+
+## Warning: Removed 13 row(s) containing missing values (geom_path).
+
+## Warning: Removed 13 row(s) containing missing values (geom_path).
+
+## Warning: Removed 13 row(s) containing missing values (geom_path).
+
+## Warning: Removed 13 row(s) containing missing values (geom_path).
+
+## Warning: Removed 13 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
+<p>In retrospect, it would have been better to convert the data to long format instead of specifying aesthetics for each party individually. Let’s try to do this with the following code:</p>
+<pre class="r"><code># Creating a new dataframe that will include the long data
+german_election_polls_long &lt;- german_election_polls %&gt;%
+# Specifying the variables that we want to turn long
+  pivot_longer(c(&quot;union&quot;, 
+                 &quot;spd&quot;, 
+                 &quot;af_d&quot;, 
+                 &quot;fdp&quot;, 
+                 &quot;linke&quot;, 
+                 &quot;grune&quot;),
+               # Creating a new variable &quot;party&quot; that will take the names of the parties
+               names_to = &quot;party&quot;,
+               # Creating a new variable &quot;votes&quot; to take the polling values fo each party
+               values_to = &quot;votes&quot;)
+
+# Next, we recreate the same graph using the new data
+german_election_polls_long %&gt;%
+  # We group the votes by party
+  group_by(party) %&gt;% 
+  ggplot(aes(x = end_date,
+             y = votes,
+             color = party))+
+  geom_point()+
+  geom_smooth(se = FALSE,
+              na.rm = TRUE)+
+  scale_color_manual(
+    values = c(&quot;#000000&quot;,
+               &quot;#FF0000&quot;,
+               &quot;#0080FF&quot;,
+               &quot;#FFFF00&quot;,
+               &quot;#A23FAE&quot;,
+               &quot;#006633&quot;),
+    breaks = c(&quot;union&quot;,
+               &quot;spd&quot;,
+               &quot;af_d&quot;,
+               &quot;fdp&quot;,
+               &quot;linke&quot;,
+               &quot;grune&quot;),
+    labels = c(&quot;Union&quot;,
+               &quot;SPD&quot;,
+               &quot;AfD&quot;,
+               &quot;FDP&quot;,
+               &quot;Linke&quot;,
+               &quot;Grune&quot;)
+  )+
+  scale_y_continuous(&quot;&quot;, 
+                     expand = c(0,5), 
+                     breaks = seq(0, 45, by = 10),
+                     minor_breaks = seq(0, 50, by = 5),
+                     labels = label_number(suffix = &quot;%&quot;) ) +
+  scale_x_date(&quot;&quot;, 
+               expand = c(0,20), 
+               date_breaks = &quot;2 month&quot;, 
+               date_minor_breaks = &quot;1 month&quot;, 
+               date_labels = &quot;%b %Y&quot;) + 
+          labs(
+               title = &quot;German Election Polling Timeseries&quot;,
+               caption = &quot;Data from: &#39;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&#39;&quot;
+      
+              )</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-2-1.png" width="864" /></p>
+<p>Ok, we didn’t bother with the moving average, but we included a legend this time. And the code took around 30 lines less to complete.</p>
+<p>It is interesting looking at this graph now, post election. As we saw a few weeks ago, the SPD did win and dethroned the long-standing party of Angela Merkel, which means the polls were right and the shift we observe in September was accurate. Now, we can only watch the news and see if the “Trafic Light” coalition between SPD, FDP, and Grune will materialize.</p>
+</div>
+<div id="homework-2-challenge-2-how-has-the-cpi-and-its-components-changed-over-the-last-few-years" class="section level2">
+<h2>Homework 2, Challenge 2: How has the CPI and its components changed over the last few years?</h2>
+<p>In this next challenge, my group mates Otto, Yuna, and I had to pull data on the components of CPI from the Federal Reserve Economic Data (FRED) website and recreate a graph.</p>
+<p>We find the date on <a href="https://fredaccount.stlouisfed.org/public/datalist/843">CPI components at FRED</a></p>
+<p>First, we pull the data and format it with the following code:</p>
+<pre class="r"><code>url &lt;- &quot;https://fredaccount.stlouisfed.org/public/datalist/843&quot;
+
+
+# We get the tables with CPI data that exist on FRED page 
+tables &lt;- url %&gt;% 
+  read_html() %&gt;% 
+  html_nodes(css=&quot;table&quot;)
+
+
+# We parse the HTML tables into a dataframe called cpis 
+# We use purr::map() to create a list of all tables in URL
+cpis &lt;- map(tables, . %&gt;% 
+             html_table(fill=TRUE)%&gt;% 
+             janitor::clean_names())
+
+cpi_id &lt;- cpis[[2]] %&gt;% # the second table on the page contains the list of all cpi components
+  select(series_id)
+
+vectorcpi_id &lt;- as.vector(t(cpi_id)) # We transform the dataframe into vector form
+  
+cpi_data &lt;- tidyquant::tq_get(vectorcpi_id, get = &quot;economic.data&quot;, from =  &quot;2000-01-01&quot;) # We extract data from the FRED website 
+
+cpi_names &lt;- cpis[[2]] # We create a different dataframe that includes the observation titles called cpi_names
+
+cpi_doc &lt;- left_join(cpi_data, cpi_names,
+                     by = c(&quot;symbol&quot; = &quot;series_id&quot;)) # We merge the data and the titles dataframes
+
+# We use the lag function to get the 12 month change in prices for each component ...
+cpi_change &lt;- cpi_doc %&gt;%
+  group_by(title) %&gt;% 
+  mutate(year_change = price/lag(price, 12, na.rm = TRUE) - 1,
+            date) %&gt;% 
+  na.omit()
+  
+# ... and make sure that &quot;All Items&quot; appears first in the dataframe
+# Additionally, we clean the titles
+cpi_change &lt;- cpi_change %&gt;% 
+  mutate(index = symbol == &quot;CPIAUCSL&quot;) %&gt;%
+  mutate(title = str_remove_all(title, &quot;Consumer Price Index for All Urban Consumers: &quot;)) %&gt;%
+  mutate(title = str_remove_all(title, &quot; in U.S. City Average&quot;))
+
+# Next, we order the components within each month based on their impact on the annual CPI change for that month and create a new dataframe
+cpi_ordered &lt;- cpi_change %&gt;%
+    group_by(date) %&gt;%
+  arrange(desc(index), date, desc(year_change))
+
+cpi_ordered</code></pre>
+<pre><code>## # A tibble: 12,165 x 11
+## # Groups:   date [249]
+##    symbol   date       price title     vintage_date units freq  seas_adj updated
+##    &lt;chr&gt;    &lt;date&gt;     &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;  
+##  1 CPIAUCSL 2001-01-01  176. All Items Current      Inde~ M     SA       2021-1~
+##  2 CPIAUCSL 2001-02-01  176  All Items Current      Inde~ M     SA       2021-1~
+##  3 CPIAUCSL 2001-03-01  176. All Items Current      Inde~ M     SA       2021-1~
+##  4 CPIAUCSL 2001-04-01  176. All Items Current      Inde~ M     SA       2021-1~
+##  5 CPIAUCSL 2001-05-01  177. All Items Current      Inde~ M     SA       2021-1~
+##  6 CPIAUCSL 2001-06-01  178. All Items Current      Inde~ M     SA       2021-1~
+##  7 CPIAUCSL 2001-07-01  177. All Items Current      Inde~ M     SA       2021-1~
+##  8 CPIAUCSL 2001-08-01  177. All Items Current      Inde~ M     SA       2021-1~
+##  9 CPIAUCSL 2001-09-01  178. All Items Current      Inde~ M     SA       2021-1~
+## 10 CPIAUCSL 2001-10-01  178. All Items Current      Inde~ M     SA       2021-1~
+## # ... with 12,155 more rows, and 2 more variables: year_change &lt;dbl&gt;,
+## #   index &lt;lgl&gt;</code></pre>
+<pre class="r"><code># Next, we create the scatter plot of each component, where a negative change is shown in blue and a positive change in CPI is shown in red
+# We include the geom_smooth function to show the trend in CPI development
+ cpi_ordered %&gt;% 
+  filter(date &gt;= &quot;2016-01-01&quot;) %&gt;% 
+  ggplot(aes(x = date, 
+             y = year_change)) +
+  geom_point(aes(color = year_change &gt; 0)) +
+  geom_smooth(colour = &quot;dark grey&quot;, se=F) +
+  facet_wrap(~title, 
+             scales = &quot;free&quot;) + 
+  scale_y_continuous(labels=scales::percent) +
+  labs(
+       title=&quot;Yearly change of US CPI (All Items) and its components&quot;,
+       subtitle=&quot;YoY change being &lt;span style = &#39;color: brown1;&#39;&gt;positive&lt;/span&gt; or &lt;span style = &#39;color: darkturquoise;&#39;&gt;negative&lt;/span&gt; \nJan 2016 to Aug 2021&quot;,
+       y = &quot;YoY % Change&quot;,
+       x = &quot;&quot;,
+       caption = &quot;Data from St. Louis Fed FRED \nhttps://fredaccount.stlouisfed.org/public/datalist/843&quot;
+       ) +
+  theme_bw() +
+  theme(plot.subtitle = element_markdown(),
+        plot.caption = element_text(color=&quot;black&quot;),
+        legend.position = &quot;none&quot;)</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+<p>Some interesting observations can be made by looking at the disaggregated CPI components. For example, we can see the huge increase in Cars and Trucks. This is likely due to the global chip shortage after the pandemic. Other related items ike fuel and air travel are also large contributors to the CPI growth.</p>
+</div>
+<div id="homework-3-challenge-1-yield-curve-inversion" class="section level2">
+<h2>Homework 3, Challenge 1: Yield Curve inversion</h2>
+<p>In this assignment, I created 3 beautiful visualizations of US Treasury securities in order to gain a better understanding of the yield curve and what its inversion might mean.</p>
+<p>Every so often, we hear warnings from commentators on the “inverted yield curve” and its predictive power with respect to recessions. An explination of what a <a href="https://www.reuters.com/article/us-usa-economy-yieldcurve-explainer/explainer-what-is-an-inverted-yield-curve-idUSKBN1O50GA">inverted yield curve is can be found here</a>. If you’d rather listen to something, here is a great podcast from <a href="https://www.podbean.com/media/share/dir-4zgj9-6aefd11">NPR on yield curve indicators</a></p>
+<p>In addition, many articles and commentators think that, e.g., <a href="https://www.bloomberg.com/news/articles/2019-08-14/u-k-yield-curve-inverts-for-first-time-since-financial-crisis"><em>Yield curve inversion is viewed as a harbinger of recession</em></a>. One can always doubt whether inversions are truly a harbinger of recessions, and <a href="https://twitter.com/5_min_macro/status/1161627360946511873">use the attached parable on yield curve inversions</a>.</p>
+<p>In our case we will look at US data and use the <a href="https://fred.stlouisfed.org/">FRED database</a> to download historical yield curve rates, and plot the yield curves since 1999 to see when the yield curves flatten. To know more, an article that explains the <a href="https://fredblog.stlouisfed.org/2018/10/the-data-behind-the-fear-of-yield-curve-inversions/">yield curve is and its inversion can be found here</a>.</p>
+<p>First, we will load the yield curve data file that contains data on the yield curve since 1960-01-01:</p>
+<pre class="r"><code>yield_curve &lt;- read_csv(here::here(&quot;data&quot;, &quot;yield_curve.csv&quot;))
+
+glimpse(yield_curve)</code></pre>
+<pre><code>## Rows: 6,884
+## Columns: 5
+## $ date      &lt;date&gt; 1960-01-01, 1960-02-01, 1960-03-01, 1960-04-01, 1960-05-01,~
+## $ series_id &lt;chr&gt; &quot;TB3MS&quot;, &quot;TB3MS&quot;, &quot;TB3MS&quot;, &quot;TB3MS&quot;, &quot;TB3MS&quot;, &quot;TB3MS&quot;, &quot;TB3MS~
+## $ value     &lt;dbl&gt; 4.35, 3.96, 3.31, 3.23, 3.29, 2.46, 2.30, 2.30, 2.48, 2.30, ~
+## $ maturity  &lt;chr&gt; &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, &quot;3m&quot;, ~
+## $ duration  &lt;chr&gt; &quot;3-Month Treasury Bill&quot;, &quot;3-Month Treasury Bill&quot;, &quot;3-Month T~</code></pre>
+<p>Our dataframe <code>yield_curve</code> has five columns (variables):</p>
+<ul>
+<li><code>date</code>: already a date object</li>
+<li><code>series_id</code>: the FRED database ticker symbol</li>
+<li><code>value</code>: the actual yield on that date</li>
+<li><code>maturity</code>: a short hand for the maturity of the bond</li>
+<li><code>duration</code>: the duration, written out in all its glory!</li>
+</ul>
+<div id="yields-on-us-rates-by-duration-since-1960" class="section level3">
+<h3>Yields on US rates by duration since 1960</h3>
+<pre class="r"><code>yield_curve %&gt;% 
+  group_by(maturity) %&gt;% 
+  ggplot(aes(x = date,
+             y = value,
+             color = maturity))+
+  # We use this code to order the graphs based on maturity; We also specify that we want 2 columns 
+    facet_wrap(~ factor(duration, 
+                        levels = c(&quot;3-Month Treasury Bill&quot;,
+                                   &quot;6-Month Treasury Bill&quot;,
+                                   &quot;1-Year Treasury Rate&quot;,
+                                   &quot;2-Year Treasury Rate&quot;,
+                                   &quot;3-Year Treasury Rate&quot;,
+                                   &quot;5-Year Treasury Rate&quot;,
+                                   &quot;7-Year Treasury Rate&quot;,
+                                   &quot;10-Year Treasury Rate&quot;,
+                                   &quot;20-Year Treasury Rate&quot;,
+                                   &quot;30-Year Treasury Rate&quot;)), 
+               ncol = 2)+
+    geom_line()+
+    theme_bw()+
+    theme(legend.position = &quot;none&quot;)+
+    labs(title=&quot;Yields on U.S. Tresury Rates since 1960&quot;, 
+       y = &quot;%&quot;,
+       x = &quot;&quot;,
+       caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;
+       ) +
+  NULL</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-5-1.png" width="1440" /></p>
+</div>
+<div id="monthly-yields-on-us-rates-by-duration-since-1999-on-a-year-by-year-basis" class="section level3">
+<h3>Monthly yields on US rates by duration since 1999 on a year-by-year basis</h3>
+<pre class="r"><code>yield_curve %&gt;%
+  #We create 2 new variables that take the month and year from the date variable respectively
+  mutate(month = month(date),
+         year = year(date)) %&gt;%
+  # We filter for date only after 1999
+  filter(year &gt;= 1999) %&gt;%
+  # We use levels to order the x-axis based on maturity
+  ggplot(aes(x = factor(maturity, 
+                        level = c(&quot;3m&quot;, 
+                                  &quot;6m&quot;, 
+                                  &quot;1y&quot;, 
+                                  &quot;2y&quot;, 
+                                  &quot;3y&quot;,
+                                  &quot;5y&quot;,
+                                  &quot;7y&quot;,
+                                  &quot;10y&quot;, 
+                                  &quot;20y&quot;, 
+                                  &quot;30y&quot;)),
+             y = value))+
+    facet_wrap(~ year, 
+               ncol = 4)+
+  # We use as.factor to color each graph based on the years
+    geom_line(aes(group = month,
+                  color = as.factor(year)))+
+    theme_bw()+
+    theme(legend.position = &quot;none&quot;)+
+    labs(title=&quot;US Yield Curve&quot;, 
+       y = &quot;Yield (%)&quot;,
+       x = &quot;Maturity&quot;,
+       caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;
+       ) +
+  NULL</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-6-1.png" width="1440" /></p>
+</div>
+<div id="month-and-10-year-yields-since-1999" class="section level3">
+<h3>3-month and 10-year yields since 1999</h3>
+<pre class="r"><code>yield_curve %&gt;%
+  mutate(year = year(date)) %&gt;%
+  filter(year &gt;= 1999) %&gt;%
+  #We filter for bonds that only have a 3-month and 10-year maturity
+  filter( maturity == &quot;10y&quot; | maturity == &quot;3m&quot;) %&gt;% 
+  group_by(maturity) %&gt;% 
+  ggplot(aes(x = date,
+             y = value,
+             color = duration))+
+    geom_line()+
+    theme_bw()+
+  #We use this code to swap the colors of the two lines to match the original graph
+    scale_color_hue(direction = -1, h.start=90)+
+    labs(title=&quot;Yields on 3-Month and 10-Year Tresury rates since 1999&quot;, 
+         x = &quot;&quot;,
+         y = &quot;%&quot;,
+       caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;,
+       color = &quot;&quot;) +
+  NULL</code></pre>
+<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-7-1.png" width="1440" /></p>
+<p>According to <a href="https://en.wikipedia.org/wiki/List_of_recessions_in_the_United_States">Wikipedia’s list of recession in the United States</a>, since 1999 there have been two recession in the US: between Mar 2001–Nov 2001 and between Dec 2007–June 2009. In fact, we can see that the yield curve seems to flatten at those times since in both cases, the 10-year and the 3-month yield curves cross each other, suggesting the spread is equal to 0. We can see this happening in three places: around 2001 (Dot Com Bubble), around 2008 (The MBS Financial Crisis), and most recently around 2020 (The COVID-19 Pandemic). This can be explained by the fact that in anticipation of a recession and lower interest rate , investors buy long-term bonds and sell short-term ones, which affects their price and in turn, their yield. The evidence in the graph would suggest that the inversion of the yield curve is a good predictor of recessions.</p>
+</div>
+</div>
