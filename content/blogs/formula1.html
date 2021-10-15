@@ -1,0 +1,188 @@
+---
+categories:  
+- ""    #the front matter should be like the one found in, e.g., blog2.md. It cannot be like the normal Rmd we used
+- ""
+date: "2021-10-15"
+description: Formula 1 Data Analysis # the title that will show up once someone gets to this page
+draft: false
+image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+
+keywords: ""
+slug: formula1 # slug is the shorthand URL address... no spaces plz
+title: Formula 1 Data Analysis
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>I am a big fan of Formula 1. It is a passion that grew out of my interest in cars and my time racing go-karts. I have been watching since 2014 and in anticipation of the next regulation change in 2022, I think it will be interesting to analyse some Formula 1 data to see how the sport has changed over the past 7 years.</p>
+<p>I am using a data set called <em>Formula 1 World Championship (1950 - 2021)</em> created by <strong>Vopani</strong> on <a href="https://www.kaggle.com/rohanrao/formula-1-world-championship-1950-2020">Kaggle</a>. I will be following the methodology used by member <strong>JONATHAN BOUCHET</strong> but will be incorporating the latest data from a different data set, which includes 13 files that can be binded using unique IDs. The files in the data set include:</p>
+<ul>
+<li>circuits</li>
+<li>constructor results</li>
+<li>constructor standings</li>
+<li>constructors</li>
+<li>driver standings</li>
+<li>drivers</li>
+<li>lap times</li>
+<li>pit stops</li>
+<li>qualifying</li>
+<li>races</li>
+<li>results</li>
+<li>seasons</li>
+<li>status</li>
+</ul>
+<p>In order to reduce the number of duplicate columns and clutter, I will use the results.csv and only bind other files to it that I need for a particular section.</p>
+<div id="data-cleaning" class="section level2">
+<h2>Data Cleaning</h2>
+</div>
+<div id="how-has-the-speed-of-f1-changed-over-the-last-7-years" class="section level2">
+<h2>How has the speed of F1 changed over the last 7 years?</h2>
+<p>To answer this question, I will be plotting the fastest lap speed over time for a few tracks on the F1 calendar. I am choosing the tracks based on my own views of the most representative layouts and based on available data. Some tracks have been added more recently than others, so I will be excluding them.</p>
+<pre class="r"><code>results_2 %&gt;% 
+  # Filtering for years between 2014 and 2020, and for a few tracks I have chosen
+  filter(year &gt; 2013,
+         year&lt; 2021,
+         name == &quot;Abu Dhabi&quot;|
+         name == &quot;Austrian&quot;|
+         name == &quot;Australian&quot;|
+         name == &quot;Bahrain&quot;|
+         name == &quot;Belgian&quot;|
+         name == &quot;British&quot;|
+         name == &quot;Hungarian&quot;|
+         name == &quot;Italian&quot;|
+         name == &quot;Russian&quot;|
+         name == &quot;Spanish&quot;|
+         name == &quot;Monaco&quot; |
+         name == &quot;United States&quot;) %&gt;%
+  # Grouping by the name of the grand prix and year
+  group_by(name,
+           year) %&gt;%
+  # Creating a new variable that takes the median fastest lap speed of drivers
+  summarize(medianFastestLapSpeed = median(fastestLapSpeed,na.rm= TRUE)) %&gt;% 
+  ggplot(aes(x=factor(year),
+             y= medianFastestLapSpeed,
+             color=name)) + 
+  geom_point()+
+  facet_wrap( ~name , 
+                ncol=4) + 
+  theme(
+    # Adjusting size of text on x-axis
+    axis.text.x = element_text(size=8),
+    # Adjusting size of text in the strip where the names of grand prix are
+    strip.text.x = element_text(size = 10)) + 
+  #Naming
+  labs(title=&#39;Fastest Lap per Circuit, from 2014 to 2020&#39;,
+       subtitle=&#39;Speed in km/h&#39;,
+       x = &quot;&quot;,
+       y = &quot;Median of Fastest Lap Speed&quot;) +
+  # Removes Legend
+  guides(color=FALSE)</code></pre>
+<p><img src="/blogs/formula1_files/figure-html/unnamed-chunk-2-1.png" width="960" /></p>
+<p>Some interesting observations can be made from the graph above. First, we can clearly see how some tracks are much faster than others. For example, Monza, the track for the Italian Grand Prix, is known as the “Palace of Speed”, and it lives up to its name. From the graph, we can see that the Italian Grand Prix is the fastest track on the F1 calendar, with average lap speeds for the fastest lap close to 250 km/h. This means that despite the chicanes and corners, which are taken with speeds as low as 80 km/h, drivers still maintain incredible average speeds.</p>
+<p>On the other hand, <strong>street</strong> tracks like Monaco and Hungary show much lower average speeds. Even so, driving around the twisting turns of Monaco at an average speed of 160 km/h is impressive.</p>
+<p>For most tracks, we observe a positive trend in average lap speeds that tapers off around 2019 or 2020. This is not surprising to me and can be explained by a story like this: The current set of regulations were introduced in 2014 and completely overhauled the design and engineering of modern F1. Over the next few years, manufacturers continuously developed their cars and pushed the boundaries of what is accepted under the regulations. This can be most clearly observed on tracks like Spain, which involve a mix of slow, medium, and high-speed corners (Spain is actually the track that F1 tests their cars before the season). As time went on, the rate of development slowed down and manufacturers found it harder and harder to extract lap times from their package.</p>
+<p>The decrease in lap times in the latter part of the decade can be explained by the push from the Fédération Internationale de l’Automobile (FIA) to make races more competitive and exciting. In 2019, down force on the cars was reduced to allow for more close racing, which could explain the drop in performance across tracks.</p>
+<p>This trend is seen even better in the following graph:</p>
+<pre class="r"><code>results_2 %&gt;% 
+  filter(year &gt; 2013,
+         year &lt; 2021) %&gt;% 
+  group_by(name,
+           year) %&gt;% 
+  summarize(medianFastestLapSpeed = median(fastestLapSpeed, 
+                                           na.rm=TRUE)) %&gt;% 
+  ggplot(aes(x=factor(year), 
+             y= medianFastestLapSpeed)) + 
+  geom_boxplot(alpha=.25) + 
+  geom_point(size=1.5) + 
+  geom_smooth( 
+              aes(group=1), 
+              color=&#39;red&#39;, 
+              lty=2, 
+              size=1, 
+              se = FALSE) +
+  labs(title=&#39;Fastest Lap per Year&#39;,
+       subtitle=&#39;in km/h, grouped by Grand Prix&#39;,
+       x = &quot;&quot;,
+       y = &quot;Median of Fastest Lap Speed&quot;) + 
+  guides(color = FALSE)</code></pre>
+<p><img src="/blogs/formula1_files/figure-html/unnamed-chunk-3-1.png" width="960" /></p>
+<hr />
+</div>
+<div id="who-are-the-most-successfull-drivers-and-teams" class="section level2">
+<h2>Who are the most successfull drivers and teams?</h2>
+<p>Next, it will be interesting to see who are the most successful drivers and constructors over the past 75 years. We attempt to answer this with he following code:</p>
+<pre class="r"><code>results_3 %&gt;%
+  # Only keep drivers that have won a race
+  filter(position==1) %&gt;% 
+  # Group by driver name and circuit name
+  group_by(surname, 
+           name) %&gt;%
+  # Count the number of wins a driver has at a track
+  summarize(count = n()) %&gt;%
+  # Sims the wins of drivers across tracks
+  mutate(allWins = sum(count)) %&gt;% 
+  # Only include top 10 drivers by win
+  filter(allWins&gt;25) %&gt;%
+  ggplot(aes(x =reorder(surname, 
+                        allWins),
+             y = count)) +
+  geom_bar(aes(fill=name),
+           stat=&#39;identity&#39;,
+           color=&#39;white&#39;,
+           size=.1) + 
+  # Changes position of x and y axis
+  coord_flip() + 
+  # Change color palet 
+  scale_fill_manual(name=&quot;&quot;,values = viridis::viridis(71)) +
+  # Remove legend
+  guides(fill = FALSE) + 
+  labs(title=&quot;Top 10 F1 Drivers by Number of Victories&quot;,
+       subtitle=&quot;Colors corespond to wins at different tracks&quot;,
+       y = &quot;# of Wins&quot;,
+       x = &quot;Dirver Name&quot;)</code></pre>
+<p><img src="/blogs/formula1_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+<p>According to our data, the most successful driver of all time is Lewis Hamilton with 98 wins. Lewis surpassed the great Michael Schumacher in 2020 and recently got his 100th win, making him the first driver to do that. Other interesting names on the list are Sebastian vettel, who has 4 world titles and 53 wins, and Nico Rosberg, who made all his wins with Mercedes as Hamilton’s team mate between 2014 and 2016. The real stars of this list are Senna and Prost. Their rivalry was legendary and one has to keep in mind that the number of races per season was much smaller in the 80s.</p>
+<p>Finally, let’s look at the same graph for the constructors:</p>
+<pre class="r"><code>constructorResults %&gt;% 
+  filter(wins == 1) %&gt;% 
+  group_by(name_constructor) %&gt;% 
+  summarize(count=n()) %&gt;% 
+  filter(count &gt; 29) %&gt;%
+  ggplot(aes(x=reorder(name_constructor, 
+                       count),
+             y = count,
+             fill = name_constructor)) +
+  geom_bar(stat = &#39;identity&#39;,
+           color = &#39;white&#39;,
+           size = .1) + 
+  coord_flip() + 
+  scale_fill_manual(
+    values = c(&quot;red&quot;,
+               &quot;darkorange&quot;,
+               &quot;deepskyblue&quot;,
+               &quot;deepskyblue4&quot;,
+               &quot;darkslategrey&quot;,
+               &quot;blue4&quot;,
+               &quot;blue1&quot;,
+               &quot;darkgoldenrod1&quot;,
+               &quot;springgreen4&quot;,
+               &quot;darkcyan&quot;),
+    breaks = c(&quot;Ferrari&quot;,
+               &quot;McLaren&quot;,
+               &quot;Williams&quot;,
+               &quot;Brabham&quot;,
+               &quot;BRM&quot;,
+               &quot;Tyrrell&quot;,
+               &quot;Red Bull&quot;,
+               &quot;Renault&quot;,
+               &quot;Benetton&quot;,
+               &quot;Mercedes&quot;)
+  ) +
+  guides(fill = FALSE) + 
+  labs(title = &quot;Top 10 Teams by Number of Victories&quot;,
+       x = &quot;Team Name&quot;,
+       y = &quot;# of Victories&quot;)</code></pre>
+<p><img src="/blogs/formula1_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
+<p>Interestingly, despite Mercedes’ dominance over the past 7 years, the team only ranks 10th by number of victories. This is because the team entered the F1 championship much later than constructors like Ferrari and McLaren, who have been there since the beginning more than 75 years ago. Other interesting facts are that Tyrrell, BRM, and Brabham are all high on the top 10 list, but I have never seen them race and they no longer exist.</p>
+</div>

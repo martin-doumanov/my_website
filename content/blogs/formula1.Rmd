@@ -1,0 +1,293 @@
+---
+categories:  
+- ""    #the front matter should be like the one found in, e.g., blog2.md. It cannot be like the normal Rmd we used
+- ""
+date: "2021-10-15"
+description: Formula 1 Data Analysis # the title that will show up once someone gets to this page
+draft: false
+image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+
+keywords: ""
+slug: formula1 # slug is the shorthand URL address... no spaces plz
+title: Formula 1 Data Analysis
+---
+  
+  
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(fivethirtyeight)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+library(scales)
+library(zoo)
+library(ggtext)
+```
+
+I am a big fan of Formula 1. It is a passion that grew out of my interest in cars and my time racing go-karts. I have been watching since 2014 and in anticipation of the next regulation change in 2022, I think it will be interesting to analyse some Formula 1 data to see how the sport has changed over the past 7 years.
+
+I am using a data set called *Formula 1 World Championship (1950 - 2021)* created by **Vopani** on [Kaggle](https://www.kaggle.com/rohanrao/formula-1-world-championship-1950-2020). I will be following the methodology used by member **JONATHAN BOUCHET** but will be incorporating the latest data from a different data set, which includes 13 files that can be binded using unique IDs. The files in the data set include:
+
+- circuits
+- constructor results
+- constructor standings
+- constructors
+- driver standings
+- drivers
+- lap times
+- pit stops
+- qualifying
+- races
+- results
+- seasons
+- status
+
+In order to reduce the number of duplicate columns and clutter, I will use the results.csv and only bind other files to it that I need for a particular section.
+
+## Data Cleaning
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+# Loading the results data
+results <- read_csv(here::here("data","results.csv"))
+
+# Converting fastestLapSpeed to numeric
+results$fastestLapSpeed <- as.numeric(results$fastestLapSpeed)
+
+# Loading the races data
+races <- read_csv(here::here("data","races.csv"))
+
+# Convering character to date
+races$date<-as.Date(races$date,"%Y-%m-%d")
+
+# Removes Grand Prix form the name
+races$name<-gsub(" Grand Prix","",races$name)
+
+# Joining to the results dataframe
+results_2<-left_join(
+  results %>% dplyr::select(-time, -fastestLapTime), 
+  races %>% dplyr::select(-time, -url), 
+  by='raceId')
+
+```
+
+## How has the speed of F1 changed over the last 7 years?
+
+To answer this question, I will be plotting the fastest lap speed over time for a few tracks on the F1 calendar. I am choosing the tracks based on my own views of the most representative layouts and based on available data. Some tracks have been added more recently than others, so I will be excluding them.
+
+```{r, warning=FALSE, message=FALSE, fig.height=8, fig.width=10}
+results_2 %>% 
+  # Filtering for years between 2014 and 2020, and for a few tracks I have chosen
+  filter(year > 2013,
+         year< 2021,
+         name == "Abu Dhabi"|
+         name == "Austrian"|
+         name == "Australian"|
+         name == "Bahrain"|
+         name == "Belgian"|
+         name == "British"|
+         name == "Hungarian"|
+         name == "Italian"|
+         name == "Russian"|
+         name == "Spanish"|
+         name == "Monaco" |
+         name == "United States") %>%
+  # Grouping by the name of the grand prix and year
+  group_by(name,
+           year) %>%
+  # Creating a new variable that takes the median fastest lap speed of drivers
+  summarize(medianFastestLapSpeed = median(fastestLapSpeed,na.rm= TRUE)) %>% 
+  ggplot(aes(x=factor(year),
+             y= medianFastestLapSpeed,
+             color=name)) + 
+  geom_point()+
+  facet_wrap( ~name , 
+                ncol=4) + 
+  theme(
+    # Adjusting size of text on x-axis
+    axis.text.x = element_text(size=8),
+    # Adjusting size of text in the strip where the names of grand prix are
+    strip.text.x = element_text(size = 10)) + 
+  #Naming
+  labs(title='Fastest Lap per Circuit, from 2014 to 2020',
+       subtitle='Speed in km/h',
+       x = "",
+       y = "Median of Fastest Lap Speed") +
+  # Removes Legend
+  guides(color=FALSE)
+```
+
+Some interesting observations can be made from the graph above. First, we can clearly see how some tracks are much faster than others. For example, Monza, the track for the Italian Grand Prix, is known as the "Palace of Speed", and it lives up to its name. From the graph, we can see that the Italian Grand Prix is the fastest track on the F1 calendar, with average lap speeds for the fastest lap close to 250 km/h. This means that despite the chicanes and corners, which are taken with speeds as low as 80 km/h, drivers still maintain incredible average speeds.
+
+On the other hand, **street** tracks like Monaco and Hungary show much lower average speeds. Even so, driving around the twisting turns of Monaco at an average speed of 160 km/h is impressive.
+
+For most tracks, we observe a positive trend in average lap speeds that tapers off around 2019 or 2020. This is not surprising to me and can be explained by a story like this: The current set of regulations were introduced in 2014 and completely overhauled the design and engineering of modern F1. Over the next few years, manufacturers continuously developed their cars and pushed the boundaries of what is accepted under the regulations. This can be most clearly observed on tracks like Spain, which involve a mix of slow, medium, and high-speed corners (Spain is actually the track that F1 tests their cars before the season). As time went on, the rate of development slowed down and manufacturers found it harder and harder to extract lap times from their package.
+
+The decrease in lap times in the latter part of the decade can be explained by the push from the Fédération Internationale de l'Automobile (FIA) to make races more competitive and exciting. In 2019, down force on the cars was reduced to allow for more close racing, which could explain the drop in performance across tracks.
+
+This trend is seen even better in the following graph:
+
+```{r, warning=FALSE, message=FALSE, fig.height=8, fig.width=10}
+results_2 %>% 
+  filter(year > 2013,
+         year < 2021) %>% 
+  group_by(name,
+           year) %>% 
+  summarize(medianFastestLapSpeed = median(fastestLapSpeed, 
+                                           na.rm=TRUE)) %>% 
+  ggplot(aes(x=factor(year), 
+             y= medianFastestLapSpeed)) + 
+  geom_boxplot(alpha=.25) + 
+  geom_point(size=1.5) + 
+  geom_smooth( 
+              aes(group=1), 
+              color='red', 
+              lty=2, 
+              size=1, 
+              se = FALSE) +
+  labs(title='Fastest Lap per Year',
+       subtitle='in km/h, grouped by Grand Prix',
+       x = "",
+       y = "Median of Fastest Lap Speed") + 
+  guides(color = FALSE)
+```
+
+***
+## Who are the most successfull drivers and teams?
+
+Next, it will be interesting to see who are the most successful drivers and constructors over the past 75 years. We attempt to answer this with he following code:
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+# Loading drivers data
+drivers <- read_csv(here::here("data","drivers.csv"))
+# Loading driver standings data
+driversStandings <- read_csv(here::here("data","driver_standings.csv"))
+
+#Joining both drivers data sets
+drivers <- left_join(drivers %>% 
+                       select(-url), 
+                     driversStandings,
+                     by='driverId')
+
+#Joining the drivers data sets to the results data set
+results_3<-left_join(
+    results, 
+    drivers %>% 
+      rename(number_drivers = number) %>% 
+      select(-points, -position, -positionText),
+    by=c('driverId','raceId')) 
+ 
+#Joing the races data to the results data set   
+results_3<-left_join(results_3,races %>% 
+                       select(-time), 
+                     by='raceId')
+```
+
+```{r, warning=FALSE, message=FALSE, fig.height=8, fig.width=10}
+
+results_3 %>%
+  # Only keep drivers that have won a race
+  filter(position==1) %>% 
+  # Group by driver name and circuit name
+  group_by(surname, 
+           name) %>%
+  # Count the number of wins a driver has at a track
+  summarize(count = n()) %>%
+  # Sims the wins of drivers across tracks
+  mutate(allWins = sum(count)) %>% 
+  # Only include top 10 drivers by win
+  filter(allWins>25) %>%
+  ggplot(aes(x =reorder(surname, 
+                        allWins),
+             y = count)) +
+  geom_bar(aes(fill=name),
+           stat='identity',
+           color='white',
+           size=.1) + 
+  # Changes position of x and y axis
+  coord_flip() + 
+  # Change color palet 
+  scale_fill_manual(name="",values = viridis::viridis(71)) +
+  # Remove legend
+  guides(fill = FALSE) + 
+  labs(title="Top 10 F1 Drivers by Number of Victories",
+       subtitle="Colors corespond to wins at different tracks",
+       y = "# of Wins",
+       x = "Dirver Name")
+
+```
+
+According to our data, the most successful driver of all time is Lewis Hamilton with 98 wins. Lewis surpassed the great Michael Schumacher in 2020 and recently got his 100th win, making him the first driver to do that. Other interesting names on the list are Sebastian vettel, who has 4 world titles and 53 wins, and Nico Rosberg, who made all his wins with Mercedes as Hamilton's team mate between 2014 and 2016. The real stars of this list are Senna and Prost. Their rivalry was legendary and one has to keep in mind that the number of races per season was much smaller in the 80s.
+
+Finally, let's look at the same graph for the constructors:
+
+```{r, warning = FALSE, message=FALSE, echo = FALSE}
+
+constructors <- read_csv(here::here("data","constructors.csv"))
+constructorStandings <- read_csv(here::here("data","constructor_standings.csv"))
+constructorResults <- read_csv(here::here("data","constructor_results.csv"))
+
+constructorResults<-left_join(
+  constructorResults, 
+  races %>% rename(name_races = name), by='raceId')
+
+constructorResults <- left_join(constructorResults, 
+                                constructors %>% 
+                                  rename(name_constructor = name), 
+                                by='constructorId')
+
+constructorResults <- left_join(constructorResults, 
+                                constructorStandings %>% 
+                                  rename(point_constructor = points), 
+                                by=c('constructorId','raceId'))
+```
+
+```{r, warning=FALSE, message=FALSE, fig.height=8, fig.width=10}
+
+constructorResults %>% 
+  filter(wins == 1) %>% 
+  group_by(name_constructor) %>% 
+  summarize(count=n()) %>% 
+  filter(count > 29) %>%
+  ggplot(aes(x=reorder(name_constructor, 
+                       count),
+             y = count,
+             fill = name_constructor)) +
+  geom_bar(stat = 'identity',
+           color = 'white',
+           size = .1) + 
+  coord_flip() + 
+  scale_fill_manual(
+    values = c("red",
+               "darkorange",
+               "deepskyblue",
+               "deepskyblue4",
+               "darkslategrey",
+               "blue4",
+               "blue1",
+               "darkgoldenrod1",
+               "springgreen4",
+               "darkcyan"),
+    breaks = c("Ferrari",
+               "McLaren",
+               "Williams",
+               "Brabham",
+               "BRM",
+               "Tyrrell",
+               "Red Bull",
+               "Renault",
+               "Benetton",
+               "Mercedes")
+  ) +
+  guides(fill = FALSE) + 
+  labs(title = "Top 10 Teams by Number of Victories",
+       x = "Team Name",
+       y = "# of Victories")
+
+```
+
+Interestingly, despite Mercedes' dominance over the past 7 years, the team only ranks 10th by number of victories. This is because the team entered the F1 championship much later than constructors like Ferrari and McLaren, who have been there since the beginning more than 75 years ago. Other interesting facts are that Tyrrell, BRM, and Brabham are all high on the top 10 list, but I have never seen them race and they no longer exist. 
