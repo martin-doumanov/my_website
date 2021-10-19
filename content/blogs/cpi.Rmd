@@ -1,0 +1,119 @@
+---
+categories:  
+- ""    #the front matter should be like the one found in, e.g., blog2.md. It cannot be like the normal Rmd we used
+- ""
+date: "2021-10-19"
+description: CPI and its Components # the title that will show up once someone gets to this page
+draft: false
+image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
+
+keywords: ""
+slug: cpi # slug is the shorthand URL address... no spaces plz
+title: CPI and its Components
+---
+  
+  
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(fivethirtyeight)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+library(scales)
+library(zoo)
+library(ggtext)
+library(rvest) # to scrape wikipedia page
+```
+
+# Homework 2, Challenge 2: How has the CPI and its components changed over the last few years?
+
+In this next challenge, my group mates Otto, Yuna, and I had to pull data on the components of CPI from the Federal Reserve Economic Data (FRED) website and recreate a graph.
+
+We find the date on [CPI components at  FRED](https://fredaccount.stlouisfed.org/public/datalist/843)
+
+First, we pull the data and format it with the following code:
+
+```{r, warning = FALSE, message =FALSE}
+url <- "https://fredaccount.stlouisfed.org/public/datalist/843"
+
+
+# We get the tables with CPI data that exist on FRED page 
+tables <- url %>% 
+  read_html() %>% 
+  html_nodes(css="table")
+
+
+# We parse the HTML tables into a dataframe called cpis 
+# We use purr::map() to create a list of all tables in URL
+cpis <- map(tables, . %>% 
+             html_table(fill=TRUE)%>% 
+             janitor::clean_names())
+
+cpi_id <- cpis[[2]] %>% # the second table on the page contains the list of all cpi components
+  select(series_id)
+
+vectorcpi_id <- as.vector(t(cpi_id)) # We transform the dataframe into vector form
+  
+cpi_data <- tidyquant::tq_get(vectorcpi_id, get = "economic.data", from =  "2000-01-01") # We extract data from the FRED website 
+
+cpi_names <- cpis[[2]] # We create a different dataframe that includes the observation titles called cpi_names
+
+cpi_doc <- left_join(cpi_data, cpi_names,
+                     by = c("symbol" = "series_id")) # We merge the data and the titles dataframes
+
+# We use the lag function to get the 12 month change in prices for each component ...
+cpi_change <- cpi_doc %>%
+  group_by(title) %>% 
+  mutate(year_change = price/lag(price, 12, na.rm = TRUE) - 1,
+            date) %>% 
+  na.omit()
+  
+# ... and make sure that "All Items" appears first in the dataframe
+# Additionally, we clean the titles
+cpi_change <- cpi_change %>% 
+  mutate(index = symbol == "CPIAUCSL") %>%
+  mutate(title = str_remove_all(title, "Consumer Price Index for All Urban Consumers: ")) %>%
+  mutate(title = str_remove_all(title, " in U.S. City Average"))
+
+# Next, we order the components within each month based on their impact on the annual CPI change for that month and create a new dataframe
+cpi_ordered <- cpi_change %>%
+    group_by(date) %>%
+  arrange(desc(index), date, desc(year_change))
+
+cpi_ordered
+```
+
+
+```{r, warnings= FALSE, message=FALSE, fig.height=8, fig.width=10}
+# Next, we create the scatter plot of each component, where a negative change is shown in blue and a positive change in CPI is shown in red
+# We include the geom_smooth function to show the trend in CPI development
+ cpi_ordered %>% 
+  filter(date >= "2016-01-01") %>% 
+  ggplot(aes(x = date, 
+             y = year_change)) +
+  geom_point(aes(color = year_change > 0)) +
+  geom_smooth(colour = "dark grey", se=F) +
+  facet_wrap(~title, 
+             scales = "free") + 
+  scale_y_continuous(labels=scales::percent) +
+  labs(
+       title="Yearly change of US CPI (All Items) and its components",
+       subtitle="YoY change being <span style = 'color: brown1;'>positive</span> or <span style = 'color: darkturquoise;'>negative</span> \nJan 2016 to Aug 2021",
+       y = "YoY % Change",
+       x = "",
+       caption = "Data from St. Louis Fed FRED \nhttps://fredaccount.stlouisfed.org/public/datalist/843"
+       ) +
+  theme_bw() +
+  theme(plot.subtitle = element_markdown(),
+        plot.caption = element_text(color="black"),
+        legend.position = "none")
+   
+
+```
+
+Some interesting observations can be made by looking at the disaggregated CPI components. For example, we can see the huge increase in Cars and Trucks. This is likely due to the global chip shortage after the pandemic. Other related items ike fuel and air travel are also large contributors to the CPI growth. 

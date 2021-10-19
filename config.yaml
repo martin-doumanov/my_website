@@ -92,17 +92,21 @@ params:
         title: Photography
         url: blogs/photography
       - image: work.jpg
-        subtitle: A collection of my best visualisations
-        title: Visualisations
-        url: blogs/visuals
+        subtitle: My first challenge at LBS
+        title: German Election Polls
+        url: blogs/german 
+      - image: econ.jpg
+        subtitle: My second challenge at LBS
+        title: CPI and its Components
+        url: blogs/cpi
+      - image: bond.jpg
+        subtitle: My final challenge at LBS
+        title: The Yield Curve and its Inversion
+        url: blogs/bond
       - image: road.jpg
         subtitle: Some visualisations I made from the world of F1
         title: Formula 1 Data Analysis
         url: blogs/formula1
-      #- image: pic06.jpg
-       # subtitle: Feugiat Amet Tempus
-       # title: Etiam
-        #url: blogs/ipsum
   two:
     buttonText: Go back?
     enable: yes

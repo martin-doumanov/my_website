@@ -22,7 +22,7 @@ library(janitor)
 
 # A short history of Martin   
 
-```{r, echo=FALSE, out.height="50%", out.width="50%"}
+```{r, echo=FALSE, out.height="50%", out.width="50%", warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/martin.JPG",error =FALSE)     
 ```
 

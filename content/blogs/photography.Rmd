@@ -20,50 +20,51 @@ library(here)
 library(janitor)
 ```
    
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/stand.jpg",error =FALSE)     
 ```
 
-```{r, echo=FALSE}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/girl.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/forest.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/train.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/alone.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/cali.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/sun.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/sri.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/friend.jpg",error =FALSE)     
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 knitr::include_graphics("/img/hair.jpg",error =FALSE)     
 ```

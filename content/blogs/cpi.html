@@ -8,15 +8,15 @@ draft: false
 image: sky.jpg # save picture in \static\img\blogs. Acceptable formats= jpg, jpeg, or png . Your iPhone pics wont work
 
 keywords: ""
-slug: visuals # slug is the shorthand URL address... no spaces plz
+slug: german # slug is the shorthand URL address... no spaces plz
 title: My best visualisations from Data Analytics
 ---
 
 <script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
 
 
-<div id="homework-1-challenge-2-opinion-polls-for-the-2021-german-elections" class="section level2">
-<h2>Homework 1, Challenge 2: Opinion polls for the 2021 German elections</h2>
+<div id="homework-1-challenge-2-opinion-polls-for-the-2021-german-elections" class="section level1">
+<h1>Homework 1, Challenge 2: Opinion polls for the 2021 German elections</h1>
 <p>In this exercise, we were tasked with replicating a graph from the Guardian, which depicted the results of election polls prior to the 2021 German parliamentary election. The Guardian newspaper had an <a href="https://www.theguardian.com/world/2021/aug/20/german-election-poll-tracker-who-will-be-the-next-chancellor">election poll tracker for the upcoming German election</a>.The list of the opinion polls since Jan 2021 could be found at <a href="https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election">Wikipedia</a></p>
 <p>First, we used the following code to scrape the Wikipedia page and import the table in a dataframe.</p>
 <pre class="r"><code>url &lt;- &quot;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&quot;
@@ -146,18 +146,7 @@ plot &lt;- ggplot(german_election_polls,
                   caption = &quot;Data from: &#39;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&#39;&quot;
       
               )</code></pre>
-<pre><code>## Warning: Removed 13 row(s) containing missing values (geom_path).
-
-## Warning: Removed 13 row(s) containing missing values (geom_path).
-
-## Warning: Removed 13 row(s) containing missing values (geom_path).
-
-## Warning: Removed 13 row(s) containing missing values (geom_path).
-
-## Warning: Removed 13 row(s) containing missing values (geom_path).
-
-## Warning: Removed 13 row(s) containing missing values (geom_path).</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
 <p>In retrospect, it would have been better to convert the data to long format instead of specifying aesthetics for each party individually. Let’s try to do this with the following code:</p>
 <pre class="r"><code># Creating a new dataframe that will include the long data
 german_election_polls_long &lt;- german_election_polls %&gt;%
@@ -218,11 +207,9 @@ german_election_polls_long %&gt;%
                caption = &quot;Data from: &#39;https://en.wikipedia.org/wiki/Opinion_polling_for_the_2021_German_federal_election&#39;&quot;
       
               )</code></pre>
-<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-2-1.png" width="864" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-2-1.png" width="864" /></p>
 <p>Ok, we didn’t bother with the moving average, but we included a legend this time. And the code took around 30 lines less to complete.</p>
 <p>It is interesting looking at this graph now, post election. As we saw a few weeks ago, the SPD did win and dethroned the long-standing party of Angela Merkel, which means the polls were right and the shift we observe in September was accurate. Now, we can only watch the news and see if the “Trafic Light” coalition between SPD, FDP, and Grune will materialize.</p>
-</div>
 <div id="homework-2-challenge-2-how-has-the-cpi-and-its-components-changed-over-the-last-few-years" class="section level2">
 <h2>Homework 2, Challenge 2: How has the CPI and its components changed over the last few years?</h2>
 <p>In this next challenge, my group mates Otto, Yuna, and I had to pull data on the components of CPI from the Federal Reserve Economic Data (FRED) website and recreate a graph.</p>
@@ -313,7 +300,7 @@ cpi_ordered</code></pre>
   theme(plot.subtitle = element_markdown(),
         plot.caption = element_text(color=&quot;black&quot;),
         legend.position = &quot;none&quot;)</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
 <p>Some interesting observations can be made by looking at the disaggregated CPI components. For example, we can see the huge increase in Cars and Trucks. This is likely due to the global chip shortage after the pandemic. Other related items ike fuel and air travel are also large contributors to the CPI growth.</p>
 </div>
 <div id="homework-3-challenge-1-yield-curve-inversion" class="section level2">
@@ -370,7 +357,7 @@ glimpse(yield_curve)</code></pre>
        caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;
        ) +
   NULL</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-5-1.png" width="1440" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-5-1.png" width="1440" /></p>
 </div>
 <div id="monthly-yields-on-us-rates-by-duration-since-1999-on-a-year-by-year-basis" class="section level3">
 <h3>Monthly yields on US rates by duration since 1999 on a year-by-year basis</h3>
@@ -406,7 +393,7 @@ glimpse(yield_curve)</code></pre>
        caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;
        ) +
   NULL</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-6-1.png" width="1440" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-6-1.png" width="1440" /></p>
 </div>
 <div id="month-and-10-year-yields-since-1999" class="section level3">
 <h3>3-month and 10-year yields since 1999</h3>
@@ -429,7 +416,8 @@ glimpse(yield_curve)</code></pre>
        caption = &quot;Source: St. Louis Federal reserve Economic Database (FRED)&quot;,
        color = &quot;&quot;) +
   NULL</code></pre>
-<p><img src="/blogs/visuals_files/figure-html/unnamed-chunk-7-1.png" width="1440" /></p>
+<p><img src="/blogs/cpi_files/figure-html/unnamed-chunk-7-1.png" width="1440" /></p>
 <p>According to <a href="https://en.wikipedia.org/wiki/List_of_recessions_in_the_United_States">Wikipedia’s list of recession in the United States</a>, since 1999 there have been two recession in the US: between Mar 2001–Nov 2001 and between Dec 2007–June 2009. In fact, we can see that the yield curve seems to flatten at those times since in both cases, the 10-year and the 3-month yield curves cross each other, suggesting the spread is equal to 0. We can see this happening in three places: around 2001 (Dot Com Bubble), around 2008 (The MBS Financial Crisis), and most recently around 2020 (The COVID-19 Pandemic). This can be explained by the fact that in anticipation of a recession and lower interest rate , investors buy long-term bonds and sell short-term ones, which affects their price and in turn, their yield. The evidence in the graph would suggest that the inversion of the yield curve is a good predictor of recessions.</p>
+</div>
 </div>
 </div>
