@@ -27,7 +27,7 @@ params:
       #  title: Phone
   custom_css: []
   custom_js: []
-  description: Your description
+  description: Welcome to my website.
   error404:
     heading: Page couldn't be found
     text: Please visit [this page](/)
@@ -59,20 +59,22 @@ params:
   name: Martin Doumanov
   navigation:
     button1:
-      - name: Explore
-        url: blogs
+      - name: Explore Full Site
+        url: '#'
     #button2:
      # - name: Log In
       #  url: '#'
     links:
-      - name: Home
-        url: '#'
+     # - name: Home
+      #  url: '#'
       - name: About Me
         url: blogs/about_me
-      - name: Blogs
-        url: blogs
-      #- name: Elements
-        #url: elements.html
+      - name: Resume
+        url: blogs/resume
+      - name: Photography
+        url: blogs/photography
+      - name: F1 Visualisations
+        url: blogs/formula1
     menu: Menu
     subtitle: By HTML5 Up
     title: Forty
@@ -113,4 +115,4 @@ params:
     subtitle: "You have just visited my final project for Data Analytics for Finance. 
     \r\n I hope you have learned more about me and you found something that peeked your interest. Come again!"
     title: Thank you for coming!
-    url: blogs
+    url: '#'
